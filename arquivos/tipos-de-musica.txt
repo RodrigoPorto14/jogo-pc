@@ -1,0 +1,15 @@
+Aritimetica:
+
+1: 0 = X - pegar as operações que resultam em X
+2: 0 > X - pegar as operações que aumentam
+3: 0 < X - pegar as operações que diminuem
+4: 0 = X dps X = 0 - pegar as operações que resultam em X e depois pegar as operações inversas
+5: 
+
+Padrões
+
+1: Q B
+2: B B Q
+3: Q B Q
+4: Q B T
+5: Q B Q T
