@@ -7,24 +7,24 @@ from menu import *
 pygame.init()
 
 janela = pygame.display.set_mode((500,640))
-circles = [] ; squares = [] ; sound = {}
-circles.append(pygame.image.load('assets/red-circle.png'))
-circles.append(pygame.image.load('assets/green-circle.png'))
-circles.append(pygame.image.load('assets/blue-circle.png'))
-squares.append(pygame.image.load('assets/red-square.png'))
-squares.append(pygame.image.load('assets/green-square.png'))
-squares.append(pygame.image.load('assets/blue-square.png'))
+imagens = {} ; sound = {}
+
+with open('arquivos/imagens.txt','rt') as arq:
+    while(nome := arq.readline().replace('\n','')):
+        imagens[nome] = pygame.image.load('assets/'+nome+'.png')
+
 sound['hit'] = pygame.mixer.Sound('audios/hit.wav')
 sound['miss'] = pygame.mixer.Sound('audios/miss.ogg')
 cena = Cena.MENU
 menu = Menu()
-idMusica=2
+idMusica=3
 
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             exit()
+
         if event.type == KEYDOWN:
             if(cena==Cena.JOGO):
                 jogo.pausaJogo()
@@ -33,7 +33,7 @@ while True:
         pass
 
     elif(cena==Cena.MENU):
-        telaJogo, jogo = menu.carregaJogo(janela,squares,circles,sound,idMusica)
+        telaJogo, jogo = menu.carregaJogo(janela,imagens,sound,idMusica)
         cena = jogo.iniciaMusica()
 
     elif(cena==Cena.JOGO):

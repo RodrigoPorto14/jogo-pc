@@ -16,9 +16,10 @@ class CirculoAritmetica(Circulo):
         self.valor = int(texto[1:])
            
 class CirculoPadroes(Circulo):
-    def __init__(self, forma, x, y, cor):
+    def __init__(self, conteudo, x, y, cor,id):
         super().__init__(x, y, cor)
-        self.forma = forma
+        self.conteudo = conteudo
         self.verificado = False
+        self.id=id
 
         
