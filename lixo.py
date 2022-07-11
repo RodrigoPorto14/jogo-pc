@@ -5,5 +5,4 @@ class Lixo(Enum):
     PAPEL = 1
     VIDRO = 2
     METAL = 3
-    ORGANICO = 4
 

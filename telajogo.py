@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from lixo import *
-from random import randint
+from forma import *
 import pygame
 
 class TelaJogo:
@@ -86,11 +86,11 @@ class TelaJogoPadroes(TelaJogo):
 class TelaJogoFormas(TelaJogoPadroes):
     
     def desenhaConteudo(self,forma,x,y,cor,id):
-        if(forma=='C'):
+        if(forma==Forma.CIRCULO):
             pygame.draw.circle(self.janela,cor,(x+25,y+25),10)
-        elif(forma=='Q'):
+        elif(forma==Forma.QUADRADO):
             pygame.draw.rect(self.janela,cor,(x+15,y+15,20,20))
-        elif(forma=='T'):
+        elif(forma==Forma.TRIANGULO):
             pygame.draw.polygon(self.janela,cor,[(x+25,y+13),(x+15,y+33),(x+35,y+33)])
     
     def desenhaSequencia(self,sequencia):
@@ -98,7 +98,6 @@ class TelaJogoFormas(TelaJogoPadroes):
         qtdEspacos = qtdFormas-1
         tamanhoSequencia = qtdFormas*20 + qtdEspacos*5
         align = (480-tamanhoSequencia)/2
-
         for i in range(len(sequencia)):
             self.desenhaConteudo(sequencia[i],align-5+25*i,578,(255,255,255),0)
 
@@ -132,14 +131,19 @@ class TelaJogoNumeros(TelaJogoPadroes):
 class TelaJogoReciclagem(TelaJogoPadroes):
     
     def desenhaConteudo(self,tipoLixo,x,y,cor,id):
-        lixos = {Lixo.PAPEL: ['book','newspaper','box','paperwrap'],Lixo.VIDRO: ['glasses','winebottle','wineglass','mirror']}
+
+        lixos = {Lixo.PLASTICO: ['pipe','bottle','bucket','bag'],
+                 Lixo.PAPEL: ['book','newspaper','box','paperwrap'],
+                 Lixo.VIDRO: ['glasses','winebottle','wineglass','mirror'],
+                 Lixo.METAL: ['scissors','cap','coke','canned']}
+
         cores = {(255,0,0):'red',(0,255,0):'green',(0,0,255):'blue'}
         lixo = lixos[tipoLixo][id]
         corLixo = cores[cor]
         self.janela.blit(self.imagens[corLixo+'-'+lixo],(x+9,y+8))
     
     def desenhaSequencia(self,tipoLixo):
-        lixeira = {Lixo.PAPEL:'paper',Lixo.VIDRO:'glass'}
+        lixeira = {Lixo.PLASTICO:'plastic',Lixo.PAPEL:'paper',Lixo.VIDRO:'glass',Lixo.METAL:'metal'}
         align = (480-50)/2
         self.janela.blit(self.imagens[lixeira[tipoLixo]],(10+align,575))
         

@@ -1,6 +1,7 @@
 from re import L
 from pygame import mixer
 from lixo import *
+from forma import *
 import operator
 
 
@@ -23,27 +24,32 @@ class MusicaAritmetica(Musica):
 
 class MusicaFormas(Musica):
     def __init__(self, id):
+        def conversorForma(letra):
+            forma = {'C':Forma.CIRCULO,'Q':Forma.QUADRADO,'T':Forma.TRIANGULO}
+            return forma[letra]
+
         conteudo = super().__init__(id)
-        self.padrao=conteudo[0].split()
-        self.sequencia=conteudo[1].split()
-        self.proximo=0
+        self.padrao = list(map(conversorForma,conteudo[0].split()))
+        self.adicionais = list(map(lambda x:int(x),conteudo[1].split()))
+        self.sequencia = list(map(conversorForma,conteudo[2].split()))
+        self.proximo=-1
 
 class MusicaNumero(Musica):
     def __init__(self, id):
         conteudo = super().__init__(id)
         operacoes = {"+":operator.add,"-":operator.sub,"x":operator.mul}
         self.operacao=operacoes[conteudo[0][0]]
-        self.valor=int(conteudo[0][1:])
-        self.sequencia=[]
-        for numero in conteudo[1].split():
-            self.sequencia.append(int(numero))
-
-        self.proximo=int(self.operacao(self.sequencia[-1],self.valor))
+        self.valor=conteudo[0][1:]
+        if(self.valor.isnumeric()):
+            self.valor=int(self.valor)
+        
+        self.sequencia = list(map(lambda x:int(x),conteudo[1].split()))
+        self.proximo=0
 
 class MusicaReciclagem(Musica):
     def __init__(self, id):
         tipo = super().__init__(id)[0].replace('\n','')
-        lixeira = {'plastico':Lixo.PLASTICO,'papel':Lixo.PAPEL,'vidro':Lixo.VIDRO,'metal':Lixo.METAL,'organico':Lixo.ORGANICO}
+        lixeira = {'plastico':Lixo.PLASTICO,'papel':Lixo.PAPEL,'vidro':Lixo.VIDRO,'metal':Lixo.METAL}
         self.sequencia = lixeira[tipo]
 
             

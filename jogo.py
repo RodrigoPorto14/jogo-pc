@@ -2,21 +2,23 @@ from abc import abstractmethod
 from circulo import *
 from cena import *
 from lixo import *
+from forma import *
 from random import randint, shuffle, sample
 import time
 import pygame
 import operator
 
 class Jogo:
-    def __init__(self,musica,sound):
+    def __init__(self,musica,som):
         self.musica = musica
-        self.sound = sound
+        self.som = som
         self.timerMusica = 0
         self.circulos = []
         self.timerMovimentoCirculos = 0
         self.corAtual = (255,255,255)
         self.pontuacao = 0
         self.pause = True
+        self.jogoIniciado = False
 
     def circuloEstourado(self):
         circulo = None
@@ -57,12 +59,13 @@ class Jogo:
         return (64+distBase)*self.musica.velocidade
     
     def pausaJogo(self):
-        if(pygame.mixer.get_busy()):
+        if(self.jogoIniciado):
             if(self.pause):
                 pygame.mixer.unpause()
             else:
                 pygame.mixer.pause()
         else:
+            self.jogoIniciado=True
             self.musica.audio.play()
 
         self.timerMovimentoCirculos = time.time() - self.timerMovimentoCirculos
@@ -72,19 +75,21 @@ class Jogo:
     
 class JogoAritmetica(Jogo):
 
-    def __init__(self,musica,sound):
-        super().__init__(musica,sound)
+    def __init__(self,musica,som):
+        super().__init__(musica,som)
         self.pontos = 0
         self.metaPontos = 0
         self.rodada = 0
         self.timerRodada = 0
+        self.condicao = ''
     
     def iniciaMusica(self):
         #self.musica.audio.play()
         self.pontos=0
+        shuffle(self.musica.condicoes)
         self.criaCondicao()
-        self.criaCirculos()
         self.criaMetaPontos()
+        self.criaCirculos()
         print(self.rodada,self.pontuacao)
         #self.timerMusica = time.time()
         #self.iniciaRodada()
@@ -93,38 +98,52 @@ class JogoAritmetica(Jogo):
     def iniciaRodada(self):
         self.pontos=0
         self.criaCondicao()
-        self.criaCirculos()
         self.criaMetaPontos()
+        self.criaCirculos()
         self.timerMovimentoCirculos = time.time()
         self.timerRodada = time.time()
     
     def criaCondicao(self):
-        self.condicao = self.musica.condicoes[self.rodada]
+        self.condicao = self.musica.condicoes[self.rodada][0]
     
     def criaMetaPontos(self):
-        metaPontos = 0
-        qtdCirculos = len(self.circulos)
-        qtdOperacoes = min(2+self.rodada//2,qtdCirculos-1)
-        copiaCirculos = self.circulos[:]
-        copiaCirculos.sort(reverse=True,key=lambda x: x.y)
-        indices = list(range(qtdCirculos))
-        indicesSortiados = sample(indices,qtdOperacoes)
-        indicesSortiados.sort()
+        if(len(self.musica.circulos)==18):
+            self.metaPontos = randint(50,99) 
+        elif(len(self.musica.condicoes[self.rodada])>1):
+            self.metaPontos = int(self.musica.condicoes[self.rodada][1:])
+        else:
+            metaPontos = 0
+            qtdCirculos = len(self.circulos)
+            copiaCirculos = self.circulos[:]
+            copiaCirculos.sort(reverse=True,key=lambda x: x.y)
 
-        for i in indicesSortiados:
-            metaPontos = copiaCirculos[i].operacao(metaPontos,copiaCirculos[i].valor)
-        
-        if(self.condicao=='>'):
-            metaPontos-=1
-        if(self.condicao=='<'):
-            metaPontos+=1
-        
-        self.metaPontos=metaPontos
-        
+            if(self.condicao=='>'):
+                for circulo in copiaCirculos:
+                    if(circulo.operacao==operator.add or circulo.operacao==operator.mul):
+                        metaPontos = circulo.operacao(metaPontos,circulo.valor)
+                metaPontos-=1
+            
+            elif(self.condicao=='<'):
+                for circulo in copiaCirculos:
+                    if(circulo.operacao==operator.sub or circulo.operacao==operator.floordiv):
+                        metaPontos = circulo.operacao(metaPontos,circulo.valor)
+                metaPontos+=1
+            
+            else:
+                qtdOperacoes = min(2+self.rodada//2,qtdCirculos-1)
+                indices = list(range(qtdCirculos))
+                indicesSortiados = sample(indices,qtdOperacoes)
+                indicesSortiados.sort()
+
+                for i in indicesSortiados:
+                    metaPontos = copiaCirculos[i].operacao(metaPontos,copiaCirculos[i].valor)
+            
+            self.metaPontos=metaPontos
         
     def criaCirculos(self):
         self.circulos.clear()
-        posicaoBase = [-300,-300,-300]
+        pos = self.getPosicaoInicial()
+        posicaoBase = [pos,pos,pos]
         qtdCirculos = len(self.musica.circulos)
         circulos = self.musica.circulos[:]
         shuffle(circulos)
@@ -142,22 +161,28 @@ class JogoAritmetica(Jogo):
             y = posicaoBase[cor]+distAdicional+50
             posicaoBase[cor]=y   
             self.circulos.append(CirculoAritmetica(circulos[i],x,y,int(cor)))
+    
+    def getPosicaoInicial(self):
+        if(len(self.musica.circulos)==18):
+            return -800
+        else:
+            return -300
 
     def passaRodada(self):
-        if(self.fimRodada()):
+        if(self.fimRodada() and self.restaCondicoes(0)):
             if(self.condicaoCorreta()):
                 self.pontuacao+=1
-            if(self.restaCondicoes()):
+            if(self.restaCondicoes(1)):
                 self.rodada+=1
-                self.iniciaRodada() 
+                self.iniciaRodada()
             else:
-                self.timerRodada=0 
-    
+                self.rodada+1 
+            
     def fimRodada(self):
-        return time.time()-self.timerRodada>=self.tempoVidaCirculo(30)
+        return time.time()-self.timerRodada>=self.tempoVidaCirculo(self.getPosicaoInicial()//-10)
     
-    def restaCondicoes(self):
-        return self.rodada+1<len(self.musica.condicoes)
+    def restaCondicoes(self,add):
+        return self.rodada+add<len(self.musica.condicoes)
 
     def condicaoCorreta(self):
         operador = {'>': operator.gt,'<': operator.lt,'=':operator.eq}
@@ -172,12 +197,15 @@ class JogoAritmetica(Jogo):
     def atualizaPontos(self):
         circulo = self.circuloEstourado()
         if(circulo!=None):
-            self.sound['hit'].play()
+            self.som['hit'].play()
             self.pontos = circulo.operacao(self.pontos,circulo.valor)
             self.circulos.remove(circulo)
     
     def setPontuacao(self):
-        self.pontuacao = (self.pontuacao*100)//(self.rodada+1)
+        if(self.rodada+1>0):
+            self.pontuacao = (self.pontuacao*100)//(self.rodada)
+        else:
+            self.pontuacao = 0
     
     def pausaJogo(self):
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
@@ -196,13 +224,14 @@ class JogoAritmetica(Jogo):
 
 class JogoPadroes(Jogo):
     
-    def __init__(self,musica,sound):
-        super().__init__(musica,sound)
+    def __init__(self,musica,som):
+        super().__init__(musica,som)
         self.timerCriacaoCirculo = 0
         self.posicaoCirculoEstourado = 640
         self.pontuacaoMaxima = 0
 
     def iniciaMusica(self):
+        self.setProximo()
         #self.musica.audio.play()
         #self.timerMusica = time.time()
         #self.timerMovimentoCirculos=time.time()
@@ -247,31 +276,39 @@ class JogoPadroes(Jogo):
         circulo = self.circuloEstourado()
         if(circulo!=None):
             if(circulo.conteudo==proximo):
-                self.sound['hit'].play()
-                self.setProximo()
+                self.som['hit'].play()
                 self.setSequencia(circulo.conteudo)
+                self.setProximo()
                 self.posicaoCirculoEstourado=circulo.y
                 self.pontuacao+=1
                 self.pontuacaoMaxima+=1
 
             else:
-                self.sound['miss'].play()
+                self.som['miss'].play()
                 self.pontuacao-=1
             
             self.circulos.remove(circulo)
     
+    @abstractmethod
     def setSequencia(self,conteudo):
-        self.musica.sequencia.append(conteudo)
+        pass
+
+    @abstractmethod
+    def setProximo(self):
+        pass
         
     def passouCirculoCorreto(self,proximo):
         for circulo in self.circulos:
             if(not circulo.verificado and circulo.y==510 and circulo.conteudo==proximo and circulo.y<self.posicaoCirculoEstourado):
-                self.sound['miss'].play()
+                self.som['miss'].play()
                 self.pontuacaoMaxima+=1
                 circulo.verificado=True
     
     def setPontuacao(self):
-        self.pontuacao = max((self.pontuacao*100)//self.pontuacaoMaxima,0)
+        if(self.pontuacaoMaxima>0):
+            self.pontuacao = max((self.pontuacao*100)//self.pontuacaoMaxima,0)
+        else:
+            self.pontuacao = 0
     
     def pausaJogo(self):
         if(pygame.key.get_pressed()[pygame.K_ESCAPE]):
@@ -280,10 +317,6 @@ class JogoPadroes(Jogo):
     
     @abstractmethod
     def getProximo(self):
-        pass
-
-    @abstractmethod
-    def setProximo(self):
         pass
       
     def controlaJogo(self):
@@ -310,12 +343,21 @@ class JogoNumeros(JogoPadroes):
         return self.musica.proximo
     
     def setProximo(self):
-        self.musica.proximo = self.musica.operacao(self.musica.proximo,self.musica.valor)
+        if(self.musica.valor=='fib'):
+            self.musica.proximo = self.musica.operacao(self.musica.sequencia[-2],self.musica.sequencia[-1])
+        elif(self.musica.valor=='fig'):
+            razao = self.musica.sequencia[-1] - self.musica.sequencia[-2]
+            self.musica.proximo = self.musica.operacao(self.musica.sequencia[-1],razao+1)
+        else:
+            self.musica.proximo = self.musica.operacao(self.musica.sequencia[-1],self.musica.valor)
+    
+    def setSequencia(self,conteudo):
+        self.musica.sequencia.append(conteudo)
 
 class JogoFormas(JogoPadroes):
 
     def getConteudos(self):
-        return ['C','Q','T']
+        return [Forma.CIRCULO,Forma.QUADRADO,Forma.TRIANGULO]
     
     def getProximo(self):
         return self.musica.padrao[self.musica.proximo]
@@ -325,14 +367,23 @@ class JogoFormas(JogoPadroes):
             self.musica.proximo+=1
         else:
             self.musica.proximo=0
-        
+    
+    def setSequencia(self,conteudo):
         if(len(self.musica.sequencia)>=len(self.musica.padrao)):
             self.musica.sequencia.clear()
+            for i in range(len(self.musica.adicionais)):
+                for j in range(self.musica.adicionais[i]):
+                    self.musica.padrao.insert(i,self.musica.padrao[i])
+                    self.musica.adicionais.insert(i,0)
+
+        self.musica.sequencia.append(conteudo)
+
+        
 
 class JogoReciclagem(JogoPadroes):
     
     def getConteudos(self):
-        return [Lixo.VIDRO,Lixo.PAPEL]
+        return [Lixo.PLASTICO,Lixo.PAPEL,Lixo.VIDRO,Lixo.METAL]
     
     def getProximo(self):
         return self.musica.sequencia

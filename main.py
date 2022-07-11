@@ -7,17 +7,17 @@ from menu import *
 pygame.init()
 
 janela = pygame.display.set_mode((500,640))
-imagens = {} ; sound = {}
+imagens = {} ; som = {}
 
 with open('arquivos/imagens.txt','rt') as arq:
     while(nome := arq.readline().replace('\n','')):
         imagens[nome] = pygame.image.load('assets/'+nome+'.png')
 
-sound['hit'] = pygame.mixer.Sound('audios/hit.wav')
-sound['miss'] = pygame.mixer.Sound('audios/miss.ogg')
+som['hit'] = pygame.mixer.Sound('audios/hit.wav')
+som['miss'] = pygame.mixer.Sound('audios/miss.ogg')
 cena = Cena.MENU
 menu = Menu()
-idMusica=3
+idMusica=0
 
 while True:
     for event in pygame.event.get():
@@ -33,7 +33,7 @@ while True:
         pass
 
     elif(cena==Cena.MENU):
-        telaJogo, jogo = menu.carregaJogo(janela,imagens,sound,idMusica)
+        telaJogo, jogo = menu.carregaJogo(janela,imagens,som,idMusica)
         cena = jogo.iniciaMusica()
 
     elif(cena==Cena.JOGO):
