@@ -1,6 +1,7 @@
 from musica import *
 from telajogo import *
-from jogo import *
+from jogomatematica import *
+from jogopadroes import *
 
 class Menu():
     

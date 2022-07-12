@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from cena import *
+from enums import Cena
 from menu import *
 
 pygame.init()
@@ -17,7 +17,7 @@ som['hit'] = pygame.mixer.Sound('audios/hit.wav')
 som['miss'] = pygame.mixer.Sound('audios/miss.ogg')
 cena = Cena.MENU
 menu = Menu()
-idMusica=0
+idMusica=2
 
 while True:
     for event in pygame.event.get():

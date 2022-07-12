@@ -1,9 +1,7 @@
-from re import L
 from pygame import mixer
-from lixo import *
-from forma import *
+from enums import Forma,Lixo
+from random import shuffle
 import operator
-
 
 class Musica:
     def __init__(self,id):
@@ -21,7 +19,9 @@ class MusicaAritmetica(Musica):
         conteudo = super().__init__(id)
         self.circulos=conteudo[0].split()
         self.condicoes=conteudo[1].split()
-
+        shuffle(self.condicoes)
+        self.inverso = bool(int(conteudo[2]))
+        
 class MusicaFormas(Musica):
     def __init__(self, id):
         def conversorForma(letra):
@@ -37,7 +37,7 @@ class MusicaFormas(Musica):
 class MusicaNumero(Musica):
     def __init__(self, id):
         conteudo = super().__init__(id)
-        operacoes = {"+":operator.add,"-":operator.sub,"x":operator.mul}
+        operacoes = {"+":operator.add,"-":operator.sub,"x":operator.mul,'/':operator.floordiv}
         self.operacao=operacoes[conteudo[0][0]]
         self.valor=conteudo[0][1:]
         if(self.valor.isnumeric()):
@@ -51,7 +51,3 @@ class MusicaReciclagem(Musica):
         tipo = super().__init__(id)[0].replace('\n','')
         lixeira = {'plastico':Lixo.PLASTICO,'papel':Lixo.PAPEL,'vidro':Lixo.VIDRO,'metal':Lixo.METAL}
         self.sequencia = lixeira[tipo]
-
-            
-
-

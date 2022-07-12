@@ -1,6 +1,5 @@
 from abc import abstractmethod
-from lixo import *
-from forma import *
+from enums import Forma,Lixo
 import pygame
 
 class TelaJogo:
@@ -50,7 +49,7 @@ class TelaJogoAritmetica(TelaJogo):
             align = (50-tamanhoTexto)/2
             self.janela.blit(self.fonte.render(circulo.texto,False,circulo.cor),(circulo.x+align,circulo.y+15))
     
-    def desenhaCondicao(self,condicao,pontos,metaPontos):
+    def desenhaCondicao(self,pontos,condicao,metaPontos):
         texto = "{} {} {}"
         texto = texto.format(pontos,condicao,metaPontos)
         tamanhoTexto = len(texto)*18
@@ -59,7 +58,7 @@ class TelaJogoAritmetica(TelaJogo):
     
     def desenha(self,jogo):
         super().desenha(jogo.circulos,jogo.corAtual)
-        self.desenhaCondicao(jogo.condicao,jogo.pontos,jogo.metaPontos)
+        self.desenhaCondicao(jogo.pontos,jogo.condicao,jogo.metaPontos)
 
 class TelaJogoPadroes(TelaJogo):
     def __init__(self,janela,imagens):
@@ -97,10 +96,9 @@ class TelaJogoFormas(TelaJogoPadroes):
         qtdFormas = len(sequencia)
         qtdEspacos = qtdFormas-1
         tamanhoSequencia = qtdFormas*20 + qtdEspacos*5
-        align = (480-tamanhoSequencia)/2
+        align = (480-tamanhoSequencia)//2
         for i in range(len(sequencia)):
             self.desenhaConteudo(sequencia[i],align-5+25*i,578,(255,255,255),0)
-
 
 class TelaJogoNumeros(TelaJogoPadroes):
 
@@ -112,7 +110,7 @@ class TelaJogoNumeros(TelaJogoPadroes):
     def desenhaConteudo(self,numero,x,y,cor,id):
         numero = str(numero)
         tamanhoTexto = len(numero)*11
-        align = (50-tamanhoTexto)/2
+        align = (50-tamanhoTexto)//2
         self.janela.blit(self.fonte.render(numero,False,cor),(x+align,y+15))
     
     def desenhaSequencia(self,sequencia):
@@ -125,7 +123,7 @@ class TelaJogoNumeros(TelaJogoPadroes):
         texto+="]"
         
         tamanhoTexto = len(texto)*13
-        align = (480-tamanhoTexto)/2
+        align = (480-tamanhoTexto)//2
         self.janela.blit(self.fonteGrande.render(texto,False,(255,255,255)),(10+align,585))
 
 class TelaJogoReciclagem(TelaJogoPadroes):
@@ -144,11 +142,5 @@ class TelaJogoReciclagem(TelaJogoPadroes):
     
     def desenhaSequencia(self,tipoLixo):
         lixeira = {Lixo.PLASTICO:'plastic',Lixo.PAPEL:'paper',Lixo.VIDRO:'glass',Lixo.METAL:'metal'}
-        align = (480-50)/2
-        self.janela.blit(self.imagens[lixeira[tipoLixo]],(10+align,575))
-        
-        
-
-
-
-        
+        align = (480-50)//2
+        self.janela.blit(self.imagens[lixeira[tipoLixo]],(10+align,575))        
