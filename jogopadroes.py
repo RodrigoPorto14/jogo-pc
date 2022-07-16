@@ -2,7 +2,6 @@ from jogo import *
 from circulo import *
 from enums import Forma,Lixo
 from random import randint
-from pygame import key,K_ESCAPE
 import time
 
 class JogoPadroes(Jogo):
@@ -89,9 +88,8 @@ class JogoPadroes(Jogo):
             self.pontuacao = 0
     
     def pausaJogo(self):
-        if(key.get_pressed()[K_ESCAPE]):
-            super().pausaJogo()
-            self.timerCriacaoCirculo = time.time() - self.timerCriacaoCirculo
+        super().pausaJogo()
+        self.timerCriacaoCirculo = time.time() - self.timerCriacaoCirculo
     
     @abstractmethod
     def getProximo(self):
@@ -113,7 +111,7 @@ class JogoNumeros(JogoPadroes):
     def getConteudos(self):
         valor = self.musica.proximo
         listaValores = []
-        for i in range(-4,4):
+        for i in range(-3,3):
             listaValores.append(valor+i)
         return listaValores
     
@@ -123,9 +121,9 @@ class JogoNumeros(JogoPadroes):
     def setProximo(self):
         if(self.musica.valor=='fib'):
             self.musica.proximo = self.musica.operacao(self.musica.sequencia[-2],self.musica.sequencia[-1])
-        elif(self.musica.valor=='fig'):
+        elif(self.musica.valor.find('fig')!=-1):
             razao = self.musica.sequencia[-1] - self.musica.sequencia[-2]
-            self.musica.proximo = self.musica.operacao(self.musica.sequencia[-1],razao+1)
+            self.musica.proximo = self.musica.operacao(self.musica.sequencia[-1],razao+int(self.musica.valor[-1]))
         else:
             self.musica.proximo = self.musica.operacao(self.musica.sequencia[-1],self.musica.valor)
     

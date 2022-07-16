@@ -1,7 +1,6 @@
 from jogo import *
 from circulo import *
 from random import randint, shuffle, sample
-from pygame import key,K_ESCAPE
 import time
 import operator
 
@@ -160,7 +159,6 @@ class JogoAritmetica(Jogo):
             self.pontuacao = 0
 
     def pausaJogo(self):
-        if key.get_pressed()[K_ESCAPE]:
             super().pausaJogo()
             self.timerRodada = time.time() - self.timerRodada
         

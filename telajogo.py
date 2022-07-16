@@ -1,13 +1,17 @@
 from abc import abstractmethod
 from enums import Forma,Lixo
+import math
 import pygame
 
 class TelaJogo:
-    def __init__(self,janela,imagens):
+    def __init__(self,janela,imagens,cursor):
         self.janela = janela
         self.imagens = imagens
+        self.cursor = cursor
+        #self.fontePequena = pygame.font.SysFont('Courier New',14,True)
           
     def desenhaFundo(self):
+        #self.janela.blit(self.imagens['background'],(0,0))
         self.janela.fill((0,0,0))
     
     def desenhaQuadrados(self):
@@ -28,16 +32,64 @@ class TelaJogo:
         pygame.draw.rect(self.janela,corAtual,(10,560,480,10))
         pygame.draw.rect(self.janela,(0,0,0),(10,570,480,60))
     
+    def desenhaPlay(self,jogo):
+        if(jogo.playSelecionado()):
+            pygame.mouse.set_cursor(self.cursor['hand'])
+            self.janela.blit(self.imagens['start-on'],(175,165))
+        else:
+            pygame.mouse.set_cursor(self.cursor['arrow'])
+
+        self.janela.blit(self.imagens['start'],(175,165))
+    
+    def desenhaPause(self,jogo):
+        self.janela.blit(self.imagens['background'],(0,0))
+        self.janela.blit(self.imagens['pause-window'],(50,220))
+        botao = ['home','continue','restart']
+        cursor = False
+        for i in range(3):
+            if(jogo.opcaoPauseSelecionado(100+i*110,280,40)):
+                estado = '-on'
+                cursor = True
+            else:
+                estado = '-off'
+            self.janela.blit(self.imagens[botao[i]+estado],(100+i*110,280))
+    
+        if(cursor):
+            pygame.mouse.set_cursor(self.cursor['hand'])
+        else:
+            pygame.mouse.set_cursor(self.cursor['arrow'])
+        
+        #self.janela.blit(self.fonte.render("Menu",False,(255,255,255)),(120,350))
+        #self.janela.blit(self.fonte.render("Continuar",False,(255,255,255)),(200,350))
+        #self.janela.blit(self.fonte.render("Recomeçar",False,(255,255,255)),(314,350))
+    
+    def desenhaIconePause(self,jogo):
+        if(jogo.pauseSelecionado()):
+            pygame.mouse.set_cursor(self.cursor['hand'])
+            self.janela.blit(self.imagens['pause-on'],(450,15))
+        else:
+            pygame.mouse.set_cursor(self.cursor['arrow'])
+            self.janela.blit(self.imagens['pause-off'],(450,15))
+    
+    def desenhaPauses(self,jogo):
+        if(jogo.jogoIniciado):
+            if(jogo.pause):
+                self.desenhaPause(jogo)
+            else:
+                self.desenhaIconePause(jogo)
+        else:
+            self.desenhaPlay(jogo)
+
     def desenha(self,circulos,corAtual):
         self.desenhaFundo()
         self.desenhaQuadrados()
         self.desenhaCirculos(circulos)
         self.desenhaHUD(corAtual)
-      
+
 class TelaJogoAritmetica(TelaJogo):
 
-    def __init__(self,janela,imagens):
-        super().__init__(janela,imagens)
+    def __init__(self,janela,imagens,cursor):
+        super().__init__(janela,imagens,cursor)
         self.fonte = pygame.font.SysFont('Courier New',18,True)
         self.fonteGrande = pygame.font.SysFont('Courier New',32,True)
     
@@ -59,10 +111,11 @@ class TelaJogoAritmetica(TelaJogo):
     def desenha(self,jogo):
         super().desenha(jogo.circulos,jogo.corAtual)
         self.desenhaCondicao(jogo.pontos,jogo.condicao,jogo.metaPontos)
+        self.desenhaPauses(jogo)
 
 class TelaJogoPadroes(TelaJogo):
-    def __init__(self,janela,imagens):
-        super().__init__(janela,imagens)
+    def __init__(self,janela,imagens,cursor):
+        super().__init__(janela,imagens,cursor)
     
     def desenhaCirculos(self,circulos):
         circle = {(255,0,0):'red-circle',(0,255,0):'green-circle',(0,0,255):'blue-circle'}
@@ -81,6 +134,7 @@ class TelaJogoPadroes(TelaJogo):
     def desenha(self,jogo):
         super().desenha(jogo.circulos,jogo.corAtual)
         self.desenhaSequencia(jogo.musica.sequencia)
+        self.desenhaPauses(jogo)
 
 class TelaJogoFormas(TelaJogoPadroes):
     
@@ -102,8 +156,8 @@ class TelaJogoFormas(TelaJogoPadroes):
 
 class TelaJogoNumeros(TelaJogoPadroes):
 
-    def __init__(self,janela,imagens):
-        super().__init__(janela,imagens)
+    def __init__(self,janela,imagens,cursor):
+        super().__init__(janela,imagens,cursor)
         self.fonte = pygame.font.SysFont('Courier New',18,True) 
         self.fonteGrande = pygame.font.SysFont('Courier New',22,True)    
 

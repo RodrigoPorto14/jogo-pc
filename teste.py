@@ -6,8 +6,7 @@ from sys import exit
 pygame.init()
 
 janela = pygame.display.set_mode((500,640))
-circulo = pygame.image.load('assets/red-circle.png')
-teste = pygame.image.load('assets/red-cap.png')
+fundo = pygame.image.load('images/menu/fundo.png')
 
 while True:
     for event in pygame.event.get():
@@ -19,7 +18,7 @@ while True:
             print(pygame.mouse.get_focused())
         
     janela.fill((0,0,0))
-    janela.blit(circulo,(200,200))
-    janela.blit(teste,(209,208))
+    pygame.draw.rect(janela,(255,0,0),(200,200,100,100))
+    janela.blit(fundo,(0,0))
          
     pygame.display.flip()

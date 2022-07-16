@@ -1,0 +1,16 @@
+background 500 640
+top-bar 500 80
+back-off 50 50
+back-on 50 50
+next-page-off 50 50
+next-page-on 50 50
+prev-page-off 50 50
+prev-page-on 50 50
+page-nav-off 10 10
+page-nav-on 10 10
+star 30 30
+star0 60 20
+star1 60 20
+star2 60 20
+star3 60 20
+lock 30 40
