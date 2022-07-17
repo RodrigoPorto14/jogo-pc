@@ -5,7 +5,7 @@ import operator
 
 class Musica:
     def __init__(self,id):
-        musica = 'audios/musica'+str(id)+'.wav'
+        musica = 'audios/musica'+str(id)+'.ogg'
         self.audio = mixer.Sound(musica)
         self.audio.set_volume(0.5)
         with open('arquivos/musicas.txt','rt') as arq:
