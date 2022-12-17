@@ -4,7 +4,7 @@ SmartDJ
 Jogo feito para desenvolver os 4 pilares do pensamento computacional, a abstração, reconhecimento de padrões, descomposição e algoritmo. O jogo
 é inspirado em Guitar Hero utilizando músicas eletrônicas e desafios de lógica e matemática.
 
-![alt text]("images/smartdjj.png")
+![alt text](images/smartdjj.png)
 
 Instalação
 ------------
